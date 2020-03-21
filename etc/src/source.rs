@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 
 /// contains dir and file
+#[derive(Clone, Default)]
 pub struct Source<'s> {
     /// source namep
     pub name: &'s str,
@@ -18,11 +19,18 @@ pub struct Source<'s> {
 }
 
 /// etc source enum
+#[derive(Clone)]
 pub enum EtcSource {
     /// etc dir
     Dir,
     /// etc file
     File,
+}
+
+impl Default for EtcSource {
+    fn default() -> EtcSource {
+        EtcSource::File
+    }
 }
 
 impl<'s> Source<'s> {
