@@ -1,22 +1,49 @@
-//! file system implementation
+//! file system implementationOA
 
 use crate::{source::EtcSource, Error, Source};
 use std::{
+    cell::RefCell,
     collections::HashMap,
     convert::AsRef,
     fs,
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
 /// mock file system
 pub trait FileSystem<'fs> {
-    fn entry(&self, path: &str) -> Option<Box<Source>>;
-    fn path(&self) -> &PathBuf;
-    fn tree(&self) -> HashMap<&'fs str, Box<Source<'fs>>>;
+    /// base directory
+    fn base(&'fs self) -> &'fs str;
+
+    /// entry of a file/dir under cwd
+    fn entry(&'fs mut self, path: &'fs str) -> Option<Box<Source<'fs>>>;
+
+    /// current working directory
+    fn path(&'fs self) -> &'fs str;
+
+    /// tree of current directory
+    fn tree(&'fs self) -> Rc<RefCell<HashMap<&'fs str, Box<Source<'fs>>>>>;
+
+    // /// sync target source to Etc
+    // fn sync(src: P) -> Result<Etc, Error>
+    // where
+    //     P: AsRef<&'fs str> + AsRef<Path>,
+    // {
+    //     let src = fs::read_dir(src)?;
+    //     let mut res = Source::default();
+    //     src.collect::<PathBuf>().for_each(|path| {
+    //         if (path.is_dir()) {
+    //             res.mkdir(path);
+    //         } else {
+    //             // res.write(path);
+    //         }
+    //     })
+    // }
 
     /// find source
-    fn find(&self, src: &'fs str) -> Option<Box<Source<'fs>>> {
-        let mut t = self.tree();
+    fn find(&'fs self, src: &'fs str) -> Option<Box<Source<'fs>>> {
+        let tree = self.tree();
+        let mut t = tree.borrow_mut();
 
         if t.is_empty() {
             return None;
@@ -39,9 +66,9 @@ pub trait FileSystem<'fs> {
     }
 
     /// list sources
-    fn ls(&self) -> Vec<&'fs str> {
+    fn ls(&'fs self) -> Vec<&'fs str> {
         let mut res = vec![];
-        self.tree().keys().for_each(|&k| {
+        self.tree().borrow().keys().for_each(|&k| {
             res.push(k);
         });
 
@@ -49,18 +76,30 @@ pub trait FileSystem<'fs> {
     }
 
     /// create dir under root
-    fn mkdir<P>(&self, path: P) -> Result<(), Error>
+    fn mkdir<P>(&'fs self, path: P) -> Result<(), Error>
     where
         P: AsRef<&'fs str> + AsRef<Path>,
     {
-        let mut dir = self.path().clone();
+        let mut dir = PathBuf::from(self.base());
         dir.push(path);
 
-        Ok(fs::create_dir(dir)?)
+        // let tree = self.tree();
+        // let mut t = tree.borrow_mut();
+
+        fs::create_dir(dir)?;
+
+        unimplemented!();
+        // dir.read_dir()?.collect::<Vec<PathBuf>>().for_each(|x| {
+        //     if x.is_dir() {
+        //         x.mkdir(x.to_string());
+        //     }
+        //
+        //     FileSystem::sync(x);
+        // })
     }
 
     /// remove dir or file
-    fn rm(&mut self, path: &str) -> Result<(), Error> {
+    fn rm(&'fs mut self, path: &'fs str) -> Result<(), Error> {
         if let Some(src) = self.entry(path) {
             match src.ty {
                 EtcSource::Dir => {

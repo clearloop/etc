@@ -10,6 +10,7 @@ mod support;
 pub use crate::{
     error::Error,
     etc::Etc,
+    fs::FileSystem,
     source::{EtcSource, Source},
 };
 

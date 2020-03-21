@@ -1,22 +1,7 @@
 //! etc source
 
-use std::collections::HashMap;
-
-/// contains dir and file
-#[derive(Clone, Default)]
-pub struct Source<'s> {
-    /// source namep
-    pub name: &'s str,
-
-    /// source tree
-    pub tree: HashMap<&'s str, Box<Source<'s>>>,
-
-    /// source type
-    pub ty: EtcSource,
-
-    /// source stream
-    pub stream: &'s [u8],
-}
+use crate::FileSystem;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 /// etc source enum
 #[derive(Clone)]
@@ -33,27 +18,43 @@ impl Default for EtcSource {
     }
 }
 
-impl<'s> Source<'s> {
-    /// generate etc dir
-    pub fn dir(name: &'s str) -> Source<'s> {
-        Source {
-            name,
-            stream: &[],
-            tree: HashMap::new(),
-            ty: EtcSource::Dir,
-        }
+/// contains dir and file
+#[derive(Clone, Default)]
+pub struct Source<'s> {
+    /// base directory
+    pub base: &'s str,
+
+    /// source namep
+    pub name: &'s str,
+
+    /// source tree
+    pub tree: Rc<RefCell<HashMap<&'s str, Box<Source<'s>>>>>,
+
+    /// source type
+    pub ty: EtcSource,
+
+    /// source stream
+    pub stream: &'s [u8],
+}
+
+impl<'fs> FileSystem<'fs> for Source<'fs> {
+    fn base(&'fs self) -> &'fs str {
+        self.base
     }
 
-    /// generate etc file
-    pub fn file<S>(name: &'s str, stream: S) -> Source<'s>
-    where
-        S: AsRef<&'s [u8]>,
-    {
-        Source {
-            name,
-            stream: stream.as_ref(),
-            tree: HashMap::new(),
-            ty: EtcSource::File,
-        }
+    fn entry(&'fs mut self, path: &'fs str) -> Option<Box<Source<'fs>>> {
+        let mut t = self.tree.borrow_mut();
+        let r = t.remove(path)?;
+        t.insert(path, r.clone());
+
+        Some(r)
+    }
+
+    fn path(&'fs self) -> &'fs str {
+        self.name
+    }
+
+    fn tree(&'fs self) -> Rc<RefCell<HashMap<&'fs str, Box<Source<'fs>>>>> {
+        self.tree.clone()
     }
 }
