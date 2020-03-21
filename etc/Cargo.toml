@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 etc-derive = { version = "0.1.0", path = "../etc-derive", optional = true }
+dirs = "2.0.2"
 
 [dev-dependencies]
 etc-derive = { version = "0.1.0", path = "../etc-derive" }

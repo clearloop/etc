@@ -3,6 +3,7 @@
 
 mod error;
 mod etc;
+mod fs;
 mod source;
 mod support;
 
