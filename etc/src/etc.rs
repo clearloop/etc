@@ -14,7 +14,9 @@ pub struct Etc<'e> {
 impl<'e> Etc<'e> {
     /// abstract an etc
     pub fn new(root: &'e PathBuf) -> Result<Etc, Error> {
-        fs::create_dir(root)?;
+        if !root.exists() {
+            fs::create_dir(root)?;
+        }
 
         Ok(Etc { root })
     }

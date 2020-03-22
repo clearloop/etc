@@ -14,13 +14,13 @@ pub enum Error {
     /// custom error type in etc
     Custom(String),
     /// io error transport
-    IoError(String),
+    IO(String),
 }
 
 /// support errors
 impl From<IoError> for Error {
     fn from(e: IoError) -> Error {
-        Error::Custom(e.to_string())
+        Error::IO(e.to_string())
     }
 }
 
@@ -29,7 +29,7 @@ impl Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::Custom(s) => write!(f, "{}", s),
-            Error::IoError(s) => write!(f, "{}", s),
+            Error::IO(s) => write!(f, "{}", s),
         }
     }
 }

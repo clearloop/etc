@@ -1,10 +1,43 @@
 //! file system implementation
 
 use crate::{Error, Meta, Source};
-use std::{convert::AsRef, fs, path::PathBuf};
+use std::{convert::AsRef, fs, ops::FnOnce, path::PathBuf};
 
 /// mock file system
 pub trait FileSystem<'fs>: Meta<'fs> {
+    /// opens a file in write-only mode.
+    fn open(&'fs self, name: &'fs str) -> Result<Source, Error> {
+        let mut path = self.real_path()?;
+        path.push(name);
+
+        Ok(path.into())
+    }
+
+    /// remove current dir or file
+    fn drain(&'fs self) -> Result<(), Error> {
+        let path = self.real_path()?;
+
+        if path.is_dir() {
+            fs::remove_dir_all(path)?;
+        } else {
+            fs::remove_file(path)?;
+        }
+
+        Ok(())
+    }
+
+    /// entry of a file
+    fn entry<F>(&'fs self, name: &'fs str, f: F) -> Result<(), Error>
+    where
+        F: FnOnce(Source),
+    {
+        let mut path = self.real_path()?;
+        path.push(name);
+
+        f(path.into());
+        Ok(())
+    }
+
     /// find source
     fn find(&'fs self, src: &'fs str) -> Result<PathBuf, Error> {
         for f in fs::read_dir(self.real_path()?)? {
@@ -63,11 +96,18 @@ pub trait FileSystem<'fs>: Meta<'fs> {
 
     /// remove dir or file
     fn rm(&'fs self, path: &'fs str) -> Result<(), Error> {
-        let mut full = PathBuf::from(self.base()?);
+        let base = self.real_path();
+
+        // file doesn't exist, so don't need to remove
+        if base.is_err() {
+            return Ok(());
+        }
+
+        let mut full = PathBuf::from(base?);
         full.push(path);
 
         if full.is_dir() {
-            fs::remove_dir(full)?;
+            fs::remove_dir_all(full)?;
         } else {
             fs::remove_file(full)?;
         }

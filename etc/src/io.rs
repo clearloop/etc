@@ -28,19 +28,19 @@ pub trait Write<'w>: Meta<'w> {
     /// write stream into file
     fn write<B>(&'w self, stream: B) -> Result<(), Error>
     where
-        B: AsRef<&'w [u8]>,
+        B: AsRef<[u8]>,
     {
         let mut src = PathBuf::from(self.base()?);
         src.push(self.name()?);
 
-        if !src.exists() {
-            File::create(&src)?;
-        }
-
-        let f = File::open(src)?;
+        let f = File::create(src)?;
         let mut writer = BufWriter::new(f);
 
-        writer.write(stream.as_ref())?;
+        writer.write_all(stream.as_ref())?;
+        writer.flush()?;
         Ok(())
     }
 }
+
+impl<'w, T> Read<'w> for T where T: Meta<'w> {}
+impl<'w, T> Write<'w> for T where T: Meta<'w> {}

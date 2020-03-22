@@ -15,16 +15,26 @@ use etc::{Etc, FileSystem};
 fn main() {
     // config root path
     let mut dir = dirs::home_dir().unwrap();
-    dir.push(".etc");
+    dir.push(".etc.io");
 
-    // generate ~/.etc dir
+    // generate ~/.etc.io dir
     let etc = Etc::new(&dir).unwrap();
+    let hello = etc.open("hello.md").unwrap();
 
-    // check if root exits and remove it
-    assert!(dir.exists());
-    assert!(etc.rm(".etc").is_ok());
-    
-    // ~/.etc has been removed
+    // input and out put
+    assert!(hello.write(b"hello, world!\n").is_ok());
+    assert_eq!(hello.read().unwrap(), b"hello, world!\n");
+
+    // remove hello.md
+    assert!(etc.rm("hello.md").is_ok());
+
+    // hello.md has been removed
+    let mut hello_md = dir.clone();
+    hello_md.push("hello.md");
+    assert!(!hello_md.exists());
+
+    // remove all
+    assert!(etc.drain().is_ok());
     assert!(!dir.exists());
 }
 ```
