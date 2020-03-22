@@ -1,6 +1,6 @@
 //! etc source
 
-use crate::FileSystem;
+use crate::Meta;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 /// etc source enum
@@ -32,17 +32,14 @@ pub struct Source<'s> {
 
     /// source type
     pub ty: EtcSource,
-
-    /// source stream
-    pub stream: &'s [u8],
 }
 
-impl<'fs> FileSystem<'fs> for Source<'fs> {
-    fn base(&'fs self) -> &'fs str {
+impl<'m> Meta<'m> for Source<'m> {
+    fn base(&'m self) -> &'m str {
         self.base
     }
 
-    fn entry(&'fs mut self, path: &'fs str) -> Option<Box<Source<'fs>>> {
+    fn entry(&'m mut self, path: &'m str) -> Option<Box<Source<'m>>> {
         let mut t = self.tree.borrow_mut();
         let r = t.remove(path)?;
         t.insert(path, r.clone());
@@ -50,11 +47,11 @@ impl<'fs> FileSystem<'fs> for Source<'fs> {
         Some(r)
     }
 
-    fn path(&'fs self) -> &'fs str {
+    fn path(&'m self) -> &'m str {
         self.name
     }
 
-    fn tree(&'fs self) -> Rc<RefCell<HashMap<&'fs str, Box<Source<'fs>>>>> {
+    fn tree(&'m self) -> Rc<RefCell<HashMap<&'m str, Box<Source<'m>>>>> {
         self.tree.clone()
     }
 }

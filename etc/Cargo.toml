@@ -14,11 +14,13 @@ readme = './README.md'
 
 [dependencies]
 # etc-derive = { version = "0.1.0", path = "../etc-derive", optional = true }
+dirs = { version = "2.0.2", optional = true }
 
 [dev-dependencies]
 dirs = "2.0.2"
 # etc-derive = { version = "0.1.0", path = "../etc-derive" }
 
 [features]
+append = []
 default = []
 derive = []

@@ -1,6 +1,6 @@
 # etc
 
-[![Rust](https://github.com/clearloop/etc/workflows/Rust/badge.svg)](https://github.com/clearloop/etc)
+[![etc](https://github.com/clearloop/etc/workflows/etc/badge.svg)](https://github.com/clearloop/etc)
 [![crate](https://img.shields.io/crates/v/etc.svg)](https://crates.io/crates/etc)
 [![doc](https://img.shields.io/badge/current-docs-brightgreen.svg)](https://docs.rs/etc/)
 [![dependency status](https://deps.rs/repo/github/clearloop/etc/status.svg)](https://deps.rs/repo/github/clearloop/etc)

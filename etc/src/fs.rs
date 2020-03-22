@@ -1,6 +1,6 @@
-//! file system implementationOA
+//! file system implementation
 
-use crate::{source::EtcSource, Error, Source};
+use crate::{source::EtcSource, Error, Meta, Source};
 use std::{
     cell::RefCell,
     collections::HashMap,
@@ -13,19 +13,7 @@ use std::{
 };
 
 /// mock file system
-pub trait FileSystem<'fs> {
-    /// base directory
-    fn base(&'fs self) -> &'fs str;
-
-    /// entry of a file/dir under cwd
-    fn entry(&'fs mut self, path: &'fs str) -> Option<Box<Source<'fs>>>;
-
-    /// current working directory
-    fn path(&'fs self) -> &'fs str;
-
-    /// tree of current directory
-    fn tree(&'fs self) -> Rc<RefCell<HashMap<&'fs str, Box<Source<'fs>>>>>;
-
+pub trait FileSystem<'fs>: Meta<'fs> {
     /// find source
     fn find(&'fs self, src: &'fs str) -> Option<Box<Source<'fs>>> {
         let tree = self.tree();
@@ -78,7 +66,6 @@ pub trait FileSystem<'fs> {
             Box::new(Source {
                 base: self.base(),
                 name: path.as_ref(),
-                stream: &[],
                 tree: Rc::new(RefCell::new(HashMap::new())),
                 ty: EtcSource::Dir,
             }),
