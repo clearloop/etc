@@ -7,10 +7,9 @@ fn test_init() {
     dir.push(".etc");
 
     // generate ~/.etc dir
-    let etc = Etc::new(&dir);
-    assert!(etc.init().is_ok());
+    Etc::new(&dir).unwrap();
 
     // check if root exits and remove it
     assert!(dir.exists());
-    assert!(fs::remove_dir(dir).is_ok());
+    assert!(::std::fs::remove_dir(dir).is_ok());
 }

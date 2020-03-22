@@ -6,7 +6,9 @@ use std::{
     collections::HashMap,
     convert::AsRef,
     fs,
-    path::{Path, PathBuf},
+    fs::File,
+    io::{BufWriter, Write},
+    path::PathBuf,
     rc::Rc,
 };
 
@@ -23,22 +25,6 @@ pub trait FileSystem<'fs> {
 
     /// tree of current directory
     fn tree(&'fs self) -> Rc<RefCell<HashMap<&'fs str, Box<Source<'fs>>>>>;
-
-    // /// sync target source to Etc
-    // fn sync(src: P) -> Result<Etc, Error>
-    // where
-    //     P: AsRef<&'fs str> + AsRef<Path>,
-    // {
-    //     let src = fs::read_dir(src)?;
-    //     let mut res = Source::default();
-    //     src.collect::<PathBuf>().for_each(|path| {
-    //         if (path.is_dir()) {
-    //             res.mkdir(path);
-    //         } else {
-    //             // res.write(path);
-    //         }
-    //     })
-    // }
 
     /// find source
     fn find(&'fs self, src: &'fs str) -> Option<Box<Source<'fs>>> {
@@ -78,24 +64,27 @@ pub trait FileSystem<'fs> {
     /// create dir under root
     fn mkdir<P>(&'fs self, path: P) -> Result<(), Error>
     where
-        P: AsRef<&'fs str> + AsRef<Path>,
+        P: AsRef<&'fs str>,
     {
         let mut dir = PathBuf::from(self.base());
-        dir.push(path);
+        dir.push(path.as_ref());
 
-        // let tree = self.tree();
-        // let mut t = tree.borrow_mut();
+        let tree = self.tree();
+        let mut t = tree.borrow_mut();
 
         fs::create_dir(dir)?;
+        t.insert(
+            path.as_ref(),
+            Box::new(Source {
+                base: self.base(),
+                name: path.as_ref(),
+                stream: &[],
+                tree: Rc::new(RefCell::new(HashMap::new())),
+                ty: EtcSource::Dir,
+            }),
+        );
 
-        unimplemented!();
-        // dir.read_dir()?.collect::<Vec<PathBuf>>().for_each(|x| {
-        //     if x.is_dir() {
-        //         x.mkdir(x.to_string());
-        //     }
-        //
-        //     FileSystem::sync(x);
-        // })
+        Ok(())
     }
 
     /// remove dir or file
@@ -111,6 +100,25 @@ pub trait FileSystem<'fs> {
             }
         }
 
+        Ok(())
+    }
+
+    /// write stream into file
+    fn write<B>(&'fs mut self, name: &'fs str, stream: B) -> Result<(), Error>
+    where
+        B: AsRef<&'fs [u8]>,
+    {
+        let mut src = PathBuf::from(self.base());
+        src.push(name);
+
+        if !src.exists() {
+            File::create(&src)?;
+        }
+
+        let f = File::open(src)?;
+        let mut writer = BufWriter::new(f);
+
+        writer.write(stream.as_ref())?;
         Ok(())
     }
 }
