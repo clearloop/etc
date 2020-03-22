@@ -1,4 +1,4 @@
-use etc::Etc;
+use etc::{Etc, FileSystem};
 
 #[test]
 fn test_init() {
@@ -7,9 +7,12 @@ fn test_init() {
     dir.push(".etc");
 
     // generate ~/.etc dir
-    Etc::new(&dir).unwrap();
+    let etc = Etc::new(&dir).unwrap();
 
     // check if root exits and remove it
     assert!(dir.exists());
-    assert!(::std::fs::remove_dir(dir).is_ok());
+    assert!(etc.rm(".etc").is_ok());
+
+    // ~/.etc has been removed
+    assert!(!dir.exists());
 }

@@ -62,7 +62,7 @@ pub trait FileSystem<'fs>: Meta<'fs> {
     }
 
     /// remove dir or file
-    fn rm(&'fs mut self, path: &'fs str) -> Result<(), Error> {
+    fn rm(&'fs self, path: &'fs str) -> Result<(), Error> {
         let mut full = PathBuf::from(self.base()?);
         full.push(path);
 
