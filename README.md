@@ -10,7 +10,7 @@
 It's time to bundle etc for your awesome project!
 
 ```rust
-use etc::{Etc, FileSystem};
+use etc::{Etc, FileSystem, Read, Write};
 
 fn main() {
     // config root path
