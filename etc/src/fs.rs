@@ -91,7 +91,7 @@ pub trait FileSystem<'fs>: Meta<'fs> {
     {
         let mut dir = self.base()?;
         dir.push(path.as_ref());
-        Ok(fs::create_dir(dir.clone())?)
+        Ok(fs::create_dir_all(dir.clone())?)
     }
 
     /// remove dir or file

@@ -2,6 +2,7 @@
 
 use crate::{Error, Meta};
 use std::{
+    fs,
     fs::File,
     io::{BufWriter, Read as StdRead, Write as StdWrite},
     path::PathBuf,
@@ -32,6 +33,17 @@ pub trait Write<'w>: Meta<'w> {
     {
         let mut src = PathBuf::from(self.base()?);
         src.push(self.name()?);
+
+        if let Some(parent) = src.parent() {
+            if !parent.exists() {
+                fs::create_dir_all(parent)?;
+            }
+        } else {
+            return Err(Error::Custom(format!(
+                "Invalid file path: {}",
+                self.real_path()?.to_string_lossy(),
+            )));
+        }
 
         let f = File::create(src)?;
         let mut writer = BufWriter::new(f);

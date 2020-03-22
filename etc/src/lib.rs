@@ -21,7 +21,7 @@
 //!     let etc = Etc::new(&dir).unwrap();
 //!     let hello = etc.open("hello.md").unwrap();
 //!
-//!     // input and out put
+//!     // input and output
 //!     assert!(hello.write(b"hello, world!\n").is_ok());
 //!     assert_eq!(hello.read().unwrap(), b"hello, world!\n");
 //!
