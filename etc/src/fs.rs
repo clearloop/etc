@@ -1,43 +1,37 @@
 //! file system implementation
 
 use crate::{Error, Meta, Source};
-use std::{cell::RefCell, collections::HashMap, convert::AsRef, fs, path::PathBuf, rc::Rc};
+use std::{convert::AsRef, fs, path::PathBuf, rc::Rc};
 
 /// mock file system
 pub trait FileSystem<'fs>: Meta<'fs> {
     /// find source
-    fn find(&'fs self, src: &'fs str) -> Option<Rc<Source<'fs>>> {
-        let tree = self.tree();
-        let mut t = tree.borrow_mut();
-
-        if t.is_empty() {
-            return None;
-        }
-
-        if t.contains_key(src) {
-            return t.remove(src);
-        }
-
-        for k in t.clone().keys() {
-            if k == &src {
-                if let Some(v) = t.remove(src) {
-                    t.insert(k, v.clone());
-                    return Some(v);
-                }
-            }
-        }
-
+    fn find(&'fs self, _src: &'fs str) -> Option<Rc<Source<'fs>>> {
         None
     }
 
     /// list sources
-    fn ls(&'fs self) -> Vec<&'fs str> {
+    fn ls(&'fs self) -> Result<Vec<String>, Error> {
         let mut res = vec![];
-        self.tree().borrow().keys().for_each(|&k| {
-            res.push(k);
-        });
+        for f in fs::read_dir(self.real_path()?)? {
+            if let Some(name) = f?.path().file_name() {
+                if let Ok(string) = name.to_os_string().into_string() {
+                    res.push(string);
+                } else {
+                    return Err(Error::Custom(format!(
+                        "error: convert OsString {:?} failed",
+                        name,
+                    )));
+                }
+            } else {
+                return Err(Error::Custom(format!(
+                    "error: ls {} failed",
+                    self.real_path()?.to_string_lossy()
+                )));
+            }
+        }
 
-        res
+        Ok(res)
     }
 
     /// create dir under root
@@ -45,43 +39,22 @@ pub trait FileSystem<'fs>: Meta<'fs> {
     where
         P: AsRef<&'fs str>,
     {
-        let mut dir = PathBuf::from(self.base());
+        let mut dir = self.base()?;
         dir.push(path.as_ref());
-
-        let tree = self.tree();
-        let mut t = tree.borrow_mut();
-
-        fs::create_dir(dir)?;
-        t.insert(
-            path.as_ref(),
-            Rc::new(Source {
-                base: self.base(),
-                name: path.as_ref(),
-                tree: Rc::new(RefCell::new(HashMap::new())),
-            }),
-        );
-
-        Ok(())
+        Ok(fs::create_dir(dir.clone())?)
     }
 
     /// remove dir or file
     fn rm(&'fs mut self, path: &'fs str) -> Result<(), Error> {
-        let mut full = PathBuf::from(self.base());
+        let mut full = PathBuf::from(self.base()?);
         full.push(path);
 
-        if let Some(src) = self.entry(path) {
-            if full.is_dir() {
-                fs::remove_dir(src.name)?;
-            } else {
-                fs::remove_file(src.name)?;
-            }
-
-            Ok(())
+        if full.is_dir() {
+            fs::remove_dir(full)?;
         } else {
-            Err(Error::Custom(format!(
-                "error: {} doesn't exist",
-                full.to_str().unwrap_or(path)
-            )))
+            fs::remove_file(full)?;
         }
+
+        Ok(())
     }
 }

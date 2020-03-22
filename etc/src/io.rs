@@ -11,8 +11,8 @@ use std::{
 pub trait Read<'r>: Meta<'r> {
     /// read stream from file
     fn read(&'r self) -> Result<Vec<u8>, Error> {
-        let mut src = PathBuf::from(self.base());
-        src.push(self.path());
+        let mut src = PathBuf::from(self.base()?);
+        src.push(self.name()?);
 
         let mut f = File::open(src)?;
         let mut buffer = Vec::new();
@@ -30,8 +30,8 @@ pub trait Write<'w>: Meta<'w> {
     where
         B: AsRef<&'w [u8]>,
     {
-        let mut src = PathBuf::from(self.base());
-        src.push(self.path());
+        let mut src = PathBuf::from(self.base()?);
+        src.push(self.name()?);
 
         if !src.exists() {
             File::create(&src)?;

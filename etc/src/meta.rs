@@ -1,19 +1,41 @@
 //! meta data
 
-use crate::Source;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use crate::Error;
+use std::path::PathBuf;
 
 /// meta data
 pub trait Meta<'m> {
-    /// base directory
-    fn base(&'m self) -> &'m str;
+    /// real path
+    fn real_path(&'m self) -> Result<PathBuf, Error>;
 
-    /// entry of a file/dir under cwd
-    fn entry(&'m self, path: &'m str) -> Option<Rc<Source<'m>>>;
+    /// base directory
+    fn base(&'m self) -> Result<PathBuf, Error> {
+        if let Some(path) = self.real_path()?.parent() {
+            Ok(path.to_path_buf())
+        } else {
+            Err(Error::Custom(format!(
+                "error: parse {} failed",
+                self.real_path()?.to_string_lossy()
+            )))
+        }
+    }
 
     /// current working directory
-    fn path(&'m self) -> &'m str;
-
-    /// tree of current directory
-    fn tree(&'m self) -> Rc<RefCell<HashMap<&'m str, Rc<Source<'m>>>>>;
+    fn name(&'m self) -> Result<String, Error> {
+        if let Some(name) = self.real_path()?.file_name() {
+            if let Ok(string) = name.to_os_string().into_string() {
+                return Ok(string);
+            } else {
+                return Err(Error::Custom(format!(
+                    "error: convert OsString {:?} failed",
+                    name,
+                )));
+            }
+        } else {
+            Err(Error::Custom(format!(
+                "error: parse {} failed",
+                self.real_path()?.to_string_lossy()
+            )))
+        }
+    }
 }
