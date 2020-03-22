@@ -9,7 +9,7 @@ pub trait Meta<'m> {
     fn base(&'m self) -> &'m str;
 
     /// entry of a file/dir under cwd
-    fn entry(&'m mut self, path: &'m str) -> Option<Box<Source<'m>>>;
+    fn entry(&'m self, path: &'m str) -> Option<Box<Source<'m>>>;
 
     /// current working directory
     fn path(&'m self) -> &'m str;

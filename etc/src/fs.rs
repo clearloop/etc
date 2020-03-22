@@ -1,6 +1,6 @@
 //! file system implementation
 
-use crate::{source::EtcSource, Error, Meta, Source};
+use crate::{Error, Meta, Source};
 use std::{
     cell::RefCell,
     collections::HashMap,
@@ -67,7 +67,6 @@ pub trait FileSystem<'fs>: Meta<'fs> {
                 base: self.base(),
                 name: path.as_ref(),
                 tree: Rc::new(RefCell::new(HashMap::new())),
-                ty: EtcSource::Dir,
             }),
         );
 
@@ -76,18 +75,23 @@ pub trait FileSystem<'fs>: Meta<'fs> {
 
     /// remove dir or file
     fn rm(&'fs mut self, path: &'fs str) -> Result<(), Error> {
-        if let Some(src) = self.entry(path) {
-            match src.ty {
-                EtcSource::Dir => {
-                    fs::remove_dir(src.name)?;
-                }
-                EtcSource::File => {
-                    fs::remove_file(src.name)?;
-                }
-            }
-        }
+        let mut full = PathBuf::from(self.base());
+        full.push(path);
 
-        Ok(())
+        if let Some(src) = self.entry(path) {
+            if full.is_dir() {
+                fs::remove_dir(src.name)?;
+            } else {
+                fs::remove_file(src.name)?;
+            }
+
+            Ok(())
+        } else {
+            Err(Error::Custom(format!(
+                "error: {} doesn't exist",
+                full.to_str().unwrap_or(path)
+            )))
+        }
     }
 
     /// write stream into file

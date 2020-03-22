@@ -9,13 +9,7 @@ mod meta;
 mod source;
 mod support;
 
-pub use crate::{
-    error::Error,
-    etc::Etc,
-    fs::FileSystem,
-    meta::Meta,
-    source::{EtcSource, Source},
-};
+pub use crate::{error::Error, etc::Etc, fs::FileSystem, meta::Meta, source::Source};
 
 // #[cfg(feature = "derive")]
 // pub use etc_derive::*;

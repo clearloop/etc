@@ -27,7 +27,7 @@ impl<'m> Meta<'m> for Etc<'m> {
         self.root.as_os_str().to_str().unwrap_or_default()
     }
 
-    fn entry(&'m mut self, path: &'m str) -> Option<Box<Source<'m>>> {
+    fn entry(&'m self, path: &'m str) -> Option<Box<Source<'m>>> {
         let mut t = self.tree.borrow_mut();
         let r = t.remove(path)?;
         t.insert(path, r.clone());

@@ -3,21 +3,6 @@
 use crate::Meta;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-/// etc source enum
-#[derive(Clone)]
-pub enum EtcSource {
-    /// etc dir
-    Dir,
-    /// etc file
-    File,
-}
-
-impl Default for EtcSource {
-    fn default() -> EtcSource {
-        EtcSource::File
-    }
-}
-
 /// contains dir and file
 #[derive(Clone, Default)]
 pub struct Source<'s> {
@@ -29,9 +14,6 @@ pub struct Source<'s> {
 
     /// source tree
     pub tree: Rc<RefCell<HashMap<&'s str, Box<Source<'s>>>>>,
-
-    /// source type
-    pub ty: EtcSource,
 }
 
 impl<'m> Meta<'m> for Source<'m> {
@@ -39,7 +21,7 @@ impl<'m> Meta<'m> for Source<'m> {
         self.base
     }
 
-    fn entry(&'m mut self, path: &'m str) -> Option<Box<Source<'m>>> {
+    fn entry(&'m self, path: &'m str) -> Option<Box<Source<'m>>> {
         let mut t = self.tree.borrow_mut();
         let r = t.remove(path)?;
         t.insert(path, r.clone());
