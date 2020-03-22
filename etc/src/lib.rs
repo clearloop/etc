@@ -14,5 +14,5 @@ pub use crate::{error::Error, etc::Etc, fs::FileSystem, meta::Meta, source::Sour
 // #[cfg(feature = "derive")]
 // pub use etc_derive::*;
 
-#[cfg(feature = "append")]
+#[cfg(feature = "bonus")]
 pub use dirs;

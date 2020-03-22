@@ -1,16 +1,7 @@
 //! file system implementation
 
 use crate::{Error, Meta, Source};
-use std::{
-    cell::RefCell,
-    collections::HashMap,
-    convert::AsRef,
-    fs,
-    fs::File,
-    io::{BufWriter, Write},
-    path::PathBuf,
-    rc::Rc,
-};
+use std::{cell::RefCell, collections::HashMap, convert::AsRef, fs, path::PathBuf, rc::Rc};
 
 /// mock file system
 pub trait FileSystem<'fs>: Meta<'fs> {
@@ -92,24 +83,5 @@ pub trait FileSystem<'fs>: Meta<'fs> {
                 full.to_str().unwrap_or(path)
             )))
         }
-    }
-
-    /// write stream into file
-    fn write<B>(&'fs mut self, name: &'fs str, stream: B) -> Result<(), Error>
-    where
-        B: AsRef<&'fs [u8]>,
-    {
-        let mut src = PathBuf::from(self.base());
-        src.push(name);
-
-        if !src.exists() {
-            File::create(&src)?;
-        }
-
-        let f = File::open(src)?;
-        let mut writer = BufWriter::new(f);
-
-        writer.write(stream.as_ref())?;
-        Ok(())
     }
 }
