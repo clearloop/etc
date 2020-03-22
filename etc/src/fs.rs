@@ -1,13 +1,30 @@
 //! file system implementation
 
 use crate::{Error, Meta, Source};
-use std::{convert::AsRef, fs, path::PathBuf, rc::Rc};
+use std::{convert::AsRef, fs, path::PathBuf};
 
 /// mock file system
 pub trait FileSystem<'fs>: Meta<'fs> {
     /// find source
-    fn find(&'fs self, _src: &'fs str) -> Option<Rc<Source<'fs>>> {
-        None
+    fn find(&'fs self, src: &'fs str) -> Result<PathBuf, Error> {
+        for f in fs::read_dir(self.real_path()?)? {
+            let path = f?.path();
+            if let Some(s) = path.file_name() {
+                if src == s {
+                    return Ok(path);
+                } else {
+                    if path.is_dir() {
+                        let source: Source = path.into();
+                        let res = FileSystem::find(&source, src);
+                        if res.is_ok() {
+                            return res;
+                        }
+                    }
+                }
+            }
+        }
+
+        Err(Error::Custom(format!("error: {} not found", src)))
     }
 
     /// list sources
@@ -58,3 +75,5 @@ pub trait FileSystem<'fs>: Meta<'fs> {
         Ok(())
     }
 }
+
+impl<'m, T> FileSystem<'m> for T where T: Meta<'m> {}

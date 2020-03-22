@@ -1,19 +1,28 @@
 //! etc source
 
 use crate::{Error, Meta};
-use std::{cell::RefCell, collections::HashMap, path::PathBuf, rc::Rc};
+use std::{
+    convert::{From, Into},
+    path::PathBuf,
+};
 
 /// contains dir and file
-pub struct Source<'s> {
-    /// source path
-    pub path: &'s str,
+pub struct Source(PathBuf);
 
-    /// source tree
-    pub tree: Rc<RefCell<HashMap<&'s str, Rc<Source<'s>>>>>,
+impl<'m> Meta<'m> for Source {
+    fn real_path(&'m self) -> Result<PathBuf, Error> {
+        Ok(self.0.to_owned())
+    }
 }
 
-impl<'m> Meta<'m> for Source<'m> {
-    fn real_path(&'m self) -> Result<PathBuf, Error> {
-        Ok(PathBuf::from(self.path))
+impl<'s> From<PathBuf> for Source {
+    fn from(p: PathBuf) -> Source {
+        Source(p)
+    }
+}
+
+impl<'s> Into<String> for Source {
+    fn into(self) -> String {
+        self.name().unwrap_or("".to_string())
     }
 }
