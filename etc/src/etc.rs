@@ -7,7 +7,7 @@ pub struct Etc<'e> {
     pub root: &'e PathBuf,
 
     /// source tree
-    pub tree: Rc<RefCell<HashMap<&'e str, Box<Source<'e>>>>>,
+    pub tree: Rc<RefCell<HashMap<&'e str, Rc<Source<'e>>>>>,
 }
 
 impl<'e> Etc<'e> {
@@ -27,7 +27,7 @@ impl<'m> Meta<'m> for Etc<'m> {
         self.root.as_os_str().to_str().unwrap_or_default()
     }
 
-    fn entry(&'m self, path: &'m str) -> Option<Box<Source<'m>>> {
+    fn entry(&'m self, path: &'m str) -> Option<Rc<Source<'m>>> {
         let mut t = self.tree.borrow_mut();
         let r = t.remove(path)?;
         t.insert(path, r.clone());
@@ -43,7 +43,7 @@ impl<'m> Meta<'m> for Etc<'m> {
             .unwrap_or_default()
     }
 
-    fn tree(&'m self) -> Rc<RefCell<HashMap<&'m str, Box<Source<'m>>>>> {
+    fn tree(&'m self) -> Rc<RefCell<HashMap<&'m str, Rc<Source<'m>>>>> {
         self.tree.clone()
     }
 }

@@ -4,7 +4,6 @@ use crate::Meta;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 /// contains dir and file
-#[derive(Clone, Default)]
 pub struct Source<'s> {
     /// base directory
     pub base: &'s str,
@@ -13,7 +12,7 @@ pub struct Source<'s> {
     pub name: &'s str,
 
     /// source tree
-    pub tree: Rc<RefCell<HashMap<&'s str, Box<Source<'s>>>>>,
+    pub tree: Rc<RefCell<HashMap<&'s str, Rc<Source<'s>>>>>,
 }
 
 impl<'m> Meta<'m> for Source<'m> {
@@ -21,7 +20,7 @@ impl<'m> Meta<'m> for Source<'m> {
         self.base
     }
 
-    fn entry(&'m self, path: &'m str) -> Option<Box<Source<'m>>> {
+    fn entry(&'m self, path: &'m str) -> Option<Rc<Source<'m>>> {
         let mut t = self.tree.borrow_mut();
         let r = t.remove(path)?;
         t.insert(path, r.clone());
@@ -33,7 +32,7 @@ impl<'m> Meta<'m> for Source<'m> {
         self.name
     }
 
-    fn tree(&'m self) -> Rc<RefCell<HashMap<&'m str, Box<Source<'m>>>>> {
+    fn tree(&'m self) -> Rc<RefCell<HashMap<&'m str, Rc<Source<'m>>>>> {
         self.tree.clone()
     }
 }

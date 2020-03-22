@@ -9,11 +9,11 @@ pub trait Meta<'m> {
     fn base(&'m self) -> &'m str;
 
     /// entry of a file/dir under cwd
-    fn entry(&'m self, path: &'m str) -> Option<Box<Source<'m>>>;
+    fn entry(&'m self, path: &'m str) -> Option<Rc<Source<'m>>>;
 
     /// current working directory
     fn path(&'m self) -> &'m str;
 
     /// tree of current directory
-    fn tree(&'m self) -> Rc<RefCell<HashMap<&'m str, Box<Source<'m>>>>>;
+    fn tree(&'m self) -> Rc<RefCell<HashMap<&'m str, Rc<Source<'m>>>>>;
 }

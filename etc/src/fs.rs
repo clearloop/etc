@@ -15,7 +15,7 @@ use std::{
 /// mock file system
 pub trait FileSystem<'fs>: Meta<'fs> {
     /// find source
-    fn find(&'fs self, src: &'fs str) -> Option<Box<Source<'fs>>> {
+    fn find(&'fs self, src: &'fs str) -> Option<Rc<Source<'fs>>> {
         let tree = self.tree();
         let mut t = tree.borrow_mut();
 
@@ -29,10 +29,10 @@ pub trait FileSystem<'fs>: Meta<'fs> {
 
         for k in t.clone().keys() {
             if k == &src {
-                let res = t.remove(src);
-                t.insert(k, res.clone().unwrap_or_default());
-
-                return res;
+                if let Some(v) = t.remove(src) {
+                    t.insert(k, v.clone());
+                    return Some(v);
+                }
             }
         }
 
@@ -63,7 +63,7 @@ pub trait FileSystem<'fs>: Meta<'fs> {
         fs::create_dir(dir)?;
         t.insert(
             path.as_ref(),
-            Box::new(Source {
+            Rc::new(Source {
                 base: self.base(),
                 name: path.as_ref(),
                 tree: Rc::new(RefCell::new(HashMap::new())),
