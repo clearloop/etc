@@ -42,10 +42,7 @@ impl Tree {
 
             // Iter children
             let children = if !files.is_empty() {
-                if cfg!(target_family = "unix") {
-                    files.reverse();
-                }
-
+                files.sort_by_key(|f| f.path.clone());
                 Some(files)
             } else {
                 None

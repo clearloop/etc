@@ -14,14 +14,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "etc-derive"
-version = "0.1.0"
-dependencies = [
- "quote 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "syn 1.0.16 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "proc-macro2"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"

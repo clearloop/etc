@@ -1,5 +1,28 @@
-[workspace]
-members = [
-    "etc",
-    "etc-derive"
-]
+[package]
+name = "etc"
+version = "0.1.3"
+authors = ["clearloop <udtrokia@gmail.com>"]
+edition = "2018"
+description = "It's time to bundle etc for your awesome project!"
+repository = "https://github.com/clearloop/etc"
+license = "MIT"
+documentation = "https://docs.rs/etc"
+homepage = "https://github.com/clearloop/etc"
+include = ["src/**/*", "Cargo.toml", "./README.md"]
+keywords = ["os"]
+readme = './README.md'
+
+[dependencies.serde]
+version = "1.0.110"
+features = ["derive"]
+optional = true
+
+[dev-dependencies.cargo-husky]
+version = "1"
+default-features = false # Disable features which are enabled by default
+features = ["precommit-hook", "run-cargo-test", "run-cargo-clippy"]
+
+[features]
+serde-tree = ["serde"]
+default = []
+

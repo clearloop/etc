@@ -12,8 +12,12 @@ jobs:
       - name: Checkout the source code
         uses: actions/checkout@master
       - name: Environment
-        run: rustup update
+        run: |
+          rustup update
+          rustup component add clippy
       - name: Build
-        run: cargo build --verbose
+        run: cargo build --all-targets --all-features --verbose
+      - name: Lint
+        run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --all-targets --all-features --verbose
