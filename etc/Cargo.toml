@@ -1,6 +1,6 @@
 [package]
 name = "etc"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["clearloop <udtrokia@gmail.com>"]
 edition = "2018"
 description = "It's time to bundle etc for your awesome project!"
@@ -12,15 +12,12 @@ include = ["src/**/*", "Cargo.toml", "./README.md"]
 keywords = ["os"]
 readme = './README.md'
 
-[dependencies]
-# etc-derive = { version = "0.1.0", path = "../etc-derive", optional = true }
-dirs = { version = "2.0.2", optional = true }
-
-[dev-dependencies]
-dirs = "2.0.2"
-# etc-derive = { version = "0.1.0", path = "../etc-derive" }
+[dependencies.serde]
+version = "1.0.110"
+features = ["derive"]
+optional = true
 
 [features]
-bonus = []
+serde-tree = ["serde"]
 default = []
-derive = []
+

@@ -14,10 +14,10 @@
 //!
 //! fn main() {
 //!     // config root path
-//!     let mut dir = dirs::home_dir().unwrap();
+//!     let mut dir = std::env::temp_dir();
 //!     dir.push(".etc.io");
 //!
-//!     // generate ~/.etc.io dir
+//!     // generate `/.etc.io` dir
 //!     let etc = Etc::new(&dir).unwrap();
 //!     let hello = etc.open("hello.md").unwrap();
 //!
@@ -43,14 +43,11 @@
 //!
 //! MIT
 #![warn(missing_docs)]
-
 mod error;
 mod etc;
 mod fs;
 mod io;
 mod meta;
-mod source;
-mod support;
 
 pub use crate::{
     error::Error,
@@ -58,11 +55,7 @@ pub use crate::{
     fs::FileSystem,
     io::{Read, Write},
     meta::Meta,
-    source::Source,
 };
 
-// #[cfg(feature = "derive")]
-// pub use etc_derive::*;
-
-#[cfg(feature = "bonus")]
-pub use dirs;
+#[cfg(feature = "tree")]
+pub mod tree;

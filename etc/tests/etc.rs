@@ -1,29 +1,30 @@
 use etc::{Etc, FileSystem, Read, Write};
+use std::env;
 
 #[test]
 fn test_init() {
     // config root path
-    let mut dir = dirs::home_dir().unwrap();
+    let mut dir = env::temp_dir();
     dir.push(".etc.init");
 
-    // generate ~/.etc.init dir
+    // generate `/.etc.init` dir
     let etc = Etc::new(&dir).unwrap();
 
     // check if root exits and remove it
     assert!(dir.exists());
     assert!(etc.drain().is_ok());
 
-    // ~/.etc.init has been removed
+    // `/.etc.init` has been removed
     assert!(!dir.exists());
 }
 
 #[test]
 fn test_io() {
     // config root path
-    let mut dir = dirs::home_dir().unwrap();
+    let mut dir = env::temp_dir();
     dir.push(".etc.io");
 
-    // generate ~/.etc.io dir
+    // generate `/.etc.io` dir
     let etc = Etc::new(&dir).unwrap();
     let hello = etc.open("hello.md").unwrap();
 

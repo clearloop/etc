@@ -14,10 +14,10 @@ use etc::{Etc, FileSystem, Read, Write};
 
 fn main() {
     // config root path
-    let mut dir = dirs::home_dir().unwrap();
+    let mut dir = std::env::temp_dir();
     dir.push(".etc.io");
 
-    // generate ~/.etc.io dir
+    // generate `/.etc.io` dir
     let etc = Etc::new(&dir).unwrap();
     let hello = etc.open("hello.md").unwrap();
 

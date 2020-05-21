@@ -1,3 +1,4 @@
+//! etc source
 use crate::{Error, Meta};
 use std::{
     convert::{From, Into},
@@ -5,37 +6,34 @@ use std::{
     path::PathBuf,
 };
 
-/// The main struct in etc
-pub struct Etc<'e> {
-    /// root directory
-    pub root: &'e PathBuf,
-}
+/// contains dir and file
+pub struct Etc(PathBuf);
 
-impl<'e> Etc<'e> {
-    /// abstract an etc
-    pub fn new(root: &'e PathBuf) -> Result<Etc, Error> {
+impl Etc {
+    /// Abstract an etc dir
+    pub fn new<'e>(root: &'e PathBuf) -> Result<Etc, Error> {
         if !root.exists() {
             fs::create_dir(root)?;
         }
 
-        Ok(Etc { root })
+        Ok(Etc(root.to_owned()))
     }
 }
 
-impl<'m> Meta<'m> for Etc<'m> {
-    fn real_path(&'m self) -> Result<PathBuf, Error> {
-        Ok(self.root.to_owned())
+impl Meta for Etc {
+    fn real_path(&self) -> Result<PathBuf, Error> {
+        Ok(self.0.to_owned())
     }
 }
 
-impl<'s> From<&'s PathBuf> for Etc<'s> {
-    fn from(p: &'s PathBuf) -> Etc<'s> {
-        Etc { root: p }
+impl From<PathBuf> for Etc {
+    fn from(p: PathBuf) -> Etc {
+        Etc(p)
     }
 }
 
-impl<'s> Into<String> for Etc<'s> {
+impl Into<String> for Etc {
     fn into(self) -> String {
-        self.root.to_string_lossy().into()
+        self.name().unwrap_or("".to_string())
     }
 }

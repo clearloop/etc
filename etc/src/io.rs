@@ -9,9 +9,9 @@ use std::{
 };
 
 /// io read
-pub trait Read<'r>: Meta<'r> {
+pub trait Read: Meta {
     /// read stream from file
-    fn read(&'r self) -> Result<Vec<u8>, Error> {
+    fn read(&self) -> Result<Vec<u8>, Error> {
         let mut src = PathBuf::from(self.base()?);
         src.push(self.name()?);
 
@@ -25,9 +25,9 @@ pub trait Read<'r>: Meta<'r> {
 }
 
 /// io write
-pub trait Write<'w>: Meta<'w> {
+pub trait Write: Meta {
     /// write stream into file
-    fn write<B>(&'w self, stream: B) -> Result<(), Error>
+    fn write<B>(&self, stream: B) -> Result<(), Error>
     where
         B: AsRef<[u8]>,
     {
@@ -54,5 +54,5 @@ pub trait Write<'w>: Meta<'w> {
     }
 }
 
-impl<'w, T> Read<'w> for T where T: Meta<'w> {}
-impl<'w, T> Write<'w> for T where T: Meta<'w> {}
+impl<T> Read for T where T: Meta {}
+impl<T> Write for T where T: Meta {}

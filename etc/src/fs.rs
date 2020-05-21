@@ -1,20 +1,11 @@
 //! file system implementation
-
-use crate::{Error, Meta, Source};
+use crate::{Error, Etc, Meta};
 use std::{convert::AsRef, fs, ops::FnOnce, path::PathBuf};
 
 /// mock file system
-pub trait FileSystem<'fs>: Meta<'fs> {
-    /// opens a file in write-only mode.
-    fn open(&'fs self, name: &'fs str) -> Result<Source, Error> {
-        let mut path = self.real_path()?;
-        path.push(name);
-
-        Ok(path.into())
-    }
-
+pub trait FileSystem: Meta {
     /// remove current dir or file
-    fn drain(&'fs self) -> Result<(), Error> {
+    fn drain(&self) -> Result<(), Error> {
         let path = self.real_path()?;
 
         if path.is_dir() {
@@ -27,9 +18,9 @@ pub trait FileSystem<'fs>: Meta<'fs> {
     }
 
     /// entry of a file
-    fn entry<F>(&'fs self, name: &'fs str, f: F) -> Result<(), Error>
+    fn entry<F>(&self, name: &str, f: F) -> Result<(), Error>
     where
-        F: FnOnce(Source),
+        F: FnOnce(Etc),
     {
         let mut path = self.real_path()?;
         path.push(name);
@@ -39,7 +30,7 @@ pub trait FileSystem<'fs>: Meta<'fs> {
     }
 
     /// find source
-    fn find(&'fs self, src: &'fs str) -> Result<PathBuf, Error> {
+    fn find(&self, src: &str) -> Result<PathBuf, Error> {
         for f in fs::read_dir(self.real_path()?)? {
             let path = f?.path();
             if let Some(s) = path.file_name() {
@@ -47,7 +38,7 @@ pub trait FileSystem<'fs>: Meta<'fs> {
                     return Ok(path);
                 } else {
                     if path.is_dir() {
-                        let source: Source = path.into();
+                        let source: Etc = path.into();
                         let res = FileSystem::find(&source, src);
                         if res.is_ok() {
                             return res;
@@ -61,7 +52,7 @@ pub trait FileSystem<'fs>: Meta<'fs> {
     }
 
     /// list sources
-    fn ls(&'fs self) -> Result<Vec<String>, Error> {
+    fn ls(&self) -> Result<Vec<String>, Error> {
         let mut res = vec![];
         for f in fs::read_dir(self.real_path()?)? {
             if let Some(name) = f?.path().file_name() {
@@ -85,17 +76,25 @@ pub trait FileSystem<'fs>: Meta<'fs> {
     }
 
     /// create dir under root
-    fn mkdir<P>(&'fs self, path: P) -> Result<(), Error>
+    fn mkdir<'m, P>(&self, path: P) -> Result<(), Error>
     where
-        P: AsRef<&'fs str>,
+        P: AsRef<&'m str>,
     {
         let mut dir = self.base()?;
         dir.push(path.as_ref());
         Ok(fs::create_dir_all(dir.clone())?)
     }
 
+    /// opens a file in write-only mode.
+    fn open(&self, name: &str) -> Result<Etc, Error> {
+        let mut path = self.real_path()?;
+        path.push(name);
+
+        Ok(path.into())
+    }
+
     /// remove dir or file
-    fn rm(&'fs self, path: &'fs str) -> Result<(), Error> {
+    fn rm(&self, path: &str) -> Result<(), Error> {
         let base = self.real_path();
 
         // file doesn't exist, so don't need to remove
@@ -116,4 +115,4 @@ pub trait FileSystem<'fs>: Meta<'fs> {
     }
 }
 
-impl<'m, T> FileSystem<'m> for T where T: Meta<'m> {}
+impl<T> FileSystem for T where T: Meta {}
