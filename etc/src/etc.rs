@@ -13,7 +13,12 @@ impl Etc {
     /// Abstract an etc dir
     pub fn new<'e>(root: &'e PathBuf) -> Result<Etc, Error> {
         if !root.exists() {
-            fs::create_dir(root)?;
+            fs::create_dir_all(root)?;
+        }
+
+        let mut perms = fs::metadata(root)?.permissions();
+        if perms.readonly() {
+            perms.set_readonly(false);
         }
 
         Ok(Etc(root.to_owned()))
@@ -21,6 +26,12 @@ impl Etc {
 }
 
 impl Meta for Etc {
+    fn real_path(&self) -> Result<PathBuf, Error> {
+        Ok(self.0.to_owned())
+    }
+}
+
+impl<'e> Meta for &Etc {
     fn real_path(&self) -> Result<PathBuf, Error> {
         Ok(self.0.to_owned())
     }

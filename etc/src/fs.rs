@@ -76,13 +76,17 @@ pub trait FileSystem: Meta {
     }
 
     /// create dir under root
-    fn mkdir<'m, P>(&self, path: P) -> Result<(), Error>
+    fn mkdir<P>(&self, path: P) -> Result<(), Error>
     where
-        P: AsRef<&'m str>,
+        P: AsRef<str>,
     {
-        let mut dir = self.base()?;
+        let mut dir = self.real_path()?;
         dir.push(path.as_ref());
-        Ok(fs::create_dir_all(dir.clone())?)
+        if !dir.exists() {
+            Ok(fs::create_dir_all(dir.clone())?)
+        } else {
+            Ok(())
+        }
     }
 
     /// opens a file in write-only mode.

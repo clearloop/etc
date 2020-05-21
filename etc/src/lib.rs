@@ -48,6 +48,7 @@ mod etc;
 mod fs;
 mod io;
 mod meta;
+mod tree;
 
 pub use crate::{
     error::Error,
@@ -55,7 +56,5 @@ pub use crate::{
     fs::FileSystem,
     io::{Read, Write},
     meta::Meta,
+    tree::Tree,
 };
-
-#[cfg(feature = "tree")]
-pub mod tree;

@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 /// + Dir  - no contents, have children
 /// + File - have contents, no children
 #[cfg_attr(feature = "serde-tree", derive(Serialize, Deserialize))]
+#[derive(Debug, Eq, PartialEq)]
 pub struct Tree {
     /// File path
     pub path: PathBuf,
@@ -34,15 +35,24 @@ impl Tree {
                 children: None,
             })
         } else {
-            let mut children: Vec<Box<Tree>> = vec![];
+            let mut files: Vec<Box<Tree>> = vec![];
             for f in fs::read_dir(&path)? {
-                children.push(Box::new(Tree::batch(Etc::from(f?.path()))?));
+                files.push(Box::new(Tree::batch(Etc::from(f?.path()))?));
+            }
+
+            // Iter children
+            let mut children: Option<Vec<Box<Tree>>> = None;
+            if files.len() > 0 {
+                if cfg!(target_family = "unix") {
+                    files.reverse();
+                }
+                children = Some(files);
             }
 
             Ok(Tree {
                 path,
                 content: None,
-                children: Some(children),
+                children,
             })
         }
     }
