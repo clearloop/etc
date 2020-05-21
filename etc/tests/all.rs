@@ -92,3 +92,48 @@ fn test_batch() {
     assert!(etc.drain().is_ok());
     assert!(!dir.exists());
 }
+
+#[test]
+fn test_load() {
+    // config root path
+    let mut dir = env::temp_dir();
+    dir.push(".etc.load");
+
+    // write files
+    let etc = Etc::new(&dir).unwrap();
+    let amd = etc.open("mds/a.md").unwrap();
+    let bmd = etc.open("mds/b.md").unwrap();
+    assert!(amd.write(b"# hello").is_ok());
+    assert!(bmd.write(b"# world").is_ok());
+
+    // batch and load
+    let mut tree = Tree::batch(&etc).unwrap();
+    assert!(tree.load().is_ok());
+    assert_eq!(
+        tree,
+        Tree {
+            path: PathBuf::from(&dir),
+            content: None,
+            children: Some(vec![Box::new(Tree {
+                path: PathBuf::from_iter(&[&dir, &PathBuf::from("mds")]),
+                content: None,
+                children: Some(vec![
+                    Box::new(Tree {
+                        path: PathBuf::from_iter(&[&dir, &PathBuf::from("mds/a.md")]),
+                        content: Some(b"# hello".to_vec()),
+                        children: None,
+                    }),
+                    Box::new(Tree {
+                        path: PathBuf::from_iter(&[&dir, &PathBuf::from("mds/b.md")]),
+                        content: Some(b"# world".to_vec()),
+                        children: None,
+                    })
+                ])
+            })]),
+        }
+    );
+
+    // remove all
+    assert!(etc.drain().is_ok());
+    assert!(!dir.exists());
+}

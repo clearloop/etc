@@ -12,10 +12,7 @@ use std::{
 pub trait Read: Meta {
     /// read stream from file
     fn read(&self) -> Result<Vec<u8>, Error> {
-        let mut src = PathBuf::from(self.base()?);
-        src.push(self.name()?);
-
-        let mut f = File::open(src)?;
+        let mut f = File::open(self.real_path()?)?;
         let mut buffer = Vec::new();
 
         // read the whole file

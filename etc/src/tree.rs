@@ -1,5 +1,5 @@
 //! File tree
-use crate::{Error, Etc, FileSystem};
+use crate::{Error, Etc, FileSystem, Read};
 use std::{fs, path::PathBuf};
 
 #[cfg(feature = "serde-tree")]
@@ -15,7 +15,7 @@ pub struct Tree {
     /// File path
     pub path: PathBuf,
     /// File content
-    pub content: Option<String>,
+    pub content: Option<Vec<u8>>,
     /// Children files
     pub children: Option<Vec<Box<Tree>>>,
 }
@@ -55,5 +55,20 @@ impl Tree {
                 children,
             })
         }
+    }
+
+    /// Load file contents
+    pub fn load(&mut self) -> Result<(), Error> {
+        if self.path.is_file() {
+            self.content = Some(Etc::from(self.path.clone()).read()?);
+        } else {
+            if let Some(children) = &mut self.children {
+                for f in children {
+                    f.load()?;
+                }
+            }
+        }
+
+        Ok(())
     }
 }

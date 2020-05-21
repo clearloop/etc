@@ -17,6 +17,11 @@ pub trait FileSystem: Meta {
         Ok(())
     }
 
+    /// opens a file in write-only mode.
+    fn back(&self) -> Result<Etc, Error> {
+        Ok(Etc::from(self.base()?))
+    }
+
     /// entry of a file
     fn entry<F>(&self, name: &str, f: F) -> Result<(), Error>
     where
