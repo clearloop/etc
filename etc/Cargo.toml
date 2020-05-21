@@ -17,6 +17,9 @@ version = "1.0.110"
 features = ["derive"]
 optional = true
 
+[dev-dependencies.cargo-husky]
+version = "1"
+
 [features]
 serde-tree = ["serde"]
 default = []

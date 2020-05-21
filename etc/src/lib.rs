@@ -42,6 +42,7 @@
 //! ## LICENSE
 //!
 //! MIT
+#![allow(clippy::needless_doctest_main)]
 #![warn(missing_docs)]
 mod error;
 mod etc;

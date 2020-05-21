@@ -41,13 +41,11 @@ pub trait FileSystem: Meta {
             if let Some(s) = path.file_name() {
                 if src == s {
                     return Ok(path);
-                } else {
-                    if path.is_dir() {
-                        let source: Etc = path.into();
-                        let res = FileSystem::find(&source, src);
-                        if res.is_ok() {
-                            return res;
-                        }
+                } else if path.is_dir() {
+                    let source: Etc = path.into();
+                    let res = FileSystem::find(&source, src);
+                    if res.is_ok() {
+                        return res;
                     }
                 }
             }
@@ -88,7 +86,7 @@ pub trait FileSystem: Meta {
         let mut dir = self.real_path()?;
         dir.push(path.as_ref());
         if !dir.exists() {
-            Ok(fs::create_dir_all(dir.clone())?)
+            Ok(fs::create_dir_all(dir)?)
         } else {
             Ok(())
         }
@@ -111,7 +109,7 @@ pub trait FileSystem: Meta {
             return Ok(());
         }
 
-        let mut full = PathBuf::from(base?);
+        let mut full = base?;
         full.push(path);
 
         if full.is_dir() {

@@ -24,12 +24,12 @@ pub trait Meta {
     fn name(&self) -> Result<String, Error> {
         if let Some(name) = self.real_path()?.file_name() {
             if let Ok(string) = name.to_os_string().into_string() {
-                return Ok(string);
+                Ok(string)
             } else {
-                return Err(Error::Custom(format!(
+                Err(Error::Custom(format!(
                     "error: convert OsString {:?} failed",
                     name,
-                )));
+                )))
             }
         } else {
             Err(Error::Custom(format!(

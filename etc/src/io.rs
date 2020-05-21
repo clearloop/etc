@@ -5,7 +5,6 @@ use std::{
     fs,
     fs::File,
     io::{BufWriter, Read as StdRead, Write as StdWrite},
-    path::PathBuf,
 };
 
 /// io read
@@ -28,9 +27,7 @@ pub trait Write: Meta {
     where
         B: AsRef<[u8]>,
     {
-        let mut src = PathBuf::from(self.base()?);
-        src.push(self.name()?);
-
+        let src = self.real_path()?;
         if let Some(parent) = src.parent() {
             if !parent.exists() {
                 fs::create_dir_all(parent)?;

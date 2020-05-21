@@ -11,7 +11,7 @@ pub struct Etc(PathBuf);
 
 impl Etc {
     /// Abstract an etc dir
-    pub fn new<'e>(root: &'e PathBuf) -> Result<Etc, Error> {
+    pub fn new(root: &PathBuf) -> Result<Etc, Error> {
         if !root.exists() {
             fs::create_dir_all(root)?;
         }
@@ -45,6 +45,6 @@ impl From<PathBuf> for Etc {
 
 impl Into<String> for Etc {
     fn into(self) -> String {
-        self.name().unwrap_or("".to_string())
+        self.name().unwrap_or_else(|_| "".to_string())
     }
 }

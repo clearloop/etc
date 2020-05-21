@@ -17,7 +17,7 @@ pub struct Tree {
     /// File content
     pub content: Option<Vec<u8>>,
     /// Children files
-    pub children: Option<Vec<Box<Tree>>>,
+    pub children: Option<Vec<Tree>>,
 }
 
 impl Tree {
@@ -27,7 +27,7 @@ impl Tree {
     where
         Fs: FileSystem,
     {
-        let path = PathBuf::from(src.real_path()?);
+        let path = src.real_path()?;
         if path.is_file() {
             Ok(Tree {
                 path,
@@ -35,19 +35,21 @@ impl Tree {
                 children: None,
             })
         } else {
-            let mut files: Vec<Box<Tree>> = vec![];
+            let mut files: Vec<Tree> = vec![];
             for f in fs::read_dir(&path)? {
-                files.push(Box::new(Tree::batch(Etc::from(f?.path()))?));
+                files.push(Tree::batch(Etc::from(f?.path()))?);
             }
 
             // Iter children
-            let mut children: Option<Vec<Box<Tree>>> = None;
-            if files.len() > 0 {
+            let children = if !files.is_empty() {
                 if cfg!(target_family = "unix") {
                     files.reverse();
                 }
-                children = Some(files);
-            }
+
+                Some(files)
+            } else {
+                None
+            };
 
             Ok(Tree {
                 path,
@@ -61,14 +63,11 @@ impl Tree {
     pub fn load(&mut self) -> Result<(), Error> {
         if self.path.is_file() {
             self.content = Some(Etc::from(self.path.clone()).read()?);
-        } else {
-            if let Some(children) = &mut self.children {
-                for f in children {
-                    f.load()?;
-                }
+        } else if let Some(children) = &mut self.children {
+            for f in children {
+                f.load()?;
             }
         }
-
         Ok(())
     }
 }

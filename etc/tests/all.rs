@@ -61,30 +61,30 @@ fn test_batch() {
         Tree {
             path: PathBuf::from(&dir),
             content: None,
-            children: Some(vec![Box::new(Tree {
+            children: Some(vec![Tree {
                 path: PathBuf::from_iter(&[&dir, &PathBuf::from("a")]),
                 content: None,
                 children: Some(vec![
-                    Box::new(Tree {
+                    Tree {
                         path: PathBuf::from_iter(&[&dir, &PathBuf::from("a/b")]),
                         content: None,
-                        children: Some(vec![Box::new(Tree {
+                        children: Some(vec![Tree {
                             path: PathBuf::from_iter(&[&dir, &PathBuf::from("a/b/c")]),
                             content: None,
                             children: None,
-                        })]),
-                    }),
-                    Box::new(Tree {
+                        }]),
+                    },
+                    Tree {
                         path: PathBuf::from_iter(&[&dir, &PathBuf::from("a/c")]),
                         content: None,
-                        children: Some(vec![Box::new(Tree {
+                        children: Some(vec![Tree {
                             path: PathBuf::from_iter(&[&dir, &PathBuf::from("a/c/b")]),
                             content: None,
                             children: None,
-                        })]),
-                    }),
+                        }]),
+                    },
                 ])
-            })]),
+            }]),
         }
     );
 
@@ -114,22 +114,22 @@ fn test_load() {
         Tree {
             path: PathBuf::from(&dir),
             content: None,
-            children: Some(vec![Box::new(Tree {
+            children: Some(vec![Tree {
                 path: PathBuf::from_iter(&[&dir, &PathBuf::from("mds")]),
                 content: None,
                 children: Some(vec![
-                    Box::new(Tree {
+                    Tree {
                         path: PathBuf::from_iter(&[&dir, &PathBuf::from("mds/a.md")]),
                         content: Some(b"# hello".to_vec()),
                         children: None,
-                    }),
-                    Box::new(Tree {
+                    },
+                    Tree {
                         path: PathBuf::from_iter(&[&dir, &PathBuf::from("mds/b.md")]),
                         content: Some(b"# world".to_vec()),
                         children: None,
-                    })
+                    }
                 ])
-            })]),
+            }]),
         }
     );
 
