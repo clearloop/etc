@@ -37,6 +37,12 @@ impl<'e> Meta for &Etc {
     }
 }
 
+impl<'e> Meta for &mut Etc {
+    fn real_path(&self) -> Result<PathBuf, Error> {
+        Ok(self.0.to_owned())
+    }
+}
+
 impl From<PathBuf> for Etc {
     fn from(p: PathBuf) -> Etc {
         Etc(p)
