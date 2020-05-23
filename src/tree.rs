@@ -86,6 +86,10 @@ impl Tree {
 
     /// Redir tree path, just like `cp -r` in `unix`
     pub fn redir(&mut self, mut path: PathBuf) -> Result<(), Error> {
+        if !path.exists() {
+            fs::create_dir_all(&path)?;
+        }
+
         path.push(Etc::from(self.path.clone()).name()?);
         self.path = path.clone();
         if let Some(children) = &mut self.children {
@@ -99,7 +103,7 @@ impl Tree {
 
     /// Refresh children
     pub fn refresh(self) -> Result<Tree, Error> {
-        Tree::batch(Etc::from(self.path.clone()))
+        Tree::batch(Etc::from(self.path))
     }
 }
 
