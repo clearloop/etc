@@ -40,7 +40,7 @@ fn main() {
 
 ## Loading dir with files' content into one struct!
 
-```
+```rust
 use etc::{Etc, Tree, FileSystem, Write};
 
 fn main() {
