@@ -88,6 +88,15 @@ fn main() {
 }
 ```
 
+## Projects using etc
+
++ [elvis][elvis] - Webassembly UI framework
++ [sup][sup] - Substrate package manager
+
 ## LICENSE
 
 MIT
+
+
+[elvis]: https://github.com/elvisjs/elvis
+[sup]: https://github.com/clearloop/sup
