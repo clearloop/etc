@@ -1,9 +1,9 @@
 //! etc source
-use crate::{Error, Meta};
+use crate::{Error, Meta, Tree};
 use std::{
     convert::{From, Into},
     fs,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 /// contains dir and file
@@ -11,17 +11,25 @@ pub struct Etc(PathBuf);
 
 impl Etc {
     /// Abstract an etc dir
-    pub fn new(root: &PathBuf) -> Result<Etc, Error> {
-        if !root.exists() {
-            fs::create_dir_all(root)?;
+    pub fn new<P>(root: P) -> Result<Etc, Error>
+    where
+        P: AsRef<Path> + Sized,
+    {
+        if !root.as_ref().exists() {
+            fs::create_dir_all(&root)?;
         }
 
-        let mut perms = fs::metadata(root)?.permissions();
+        let mut perms = fs::metadata(&root)?.permissions();
         if perms.readonly() {
             perms.set_readonly(false);
         }
 
-        Ok(Etc(root.to_owned()))
+        Ok(Etc(root.as_ref().to_path_buf()))
+    }
+
+    /// Convert `Etc` to `Tree`
+    pub fn tree(self) -> Result<Tree, Error> {
+        Tree::batch(self)
     }
 }
 
@@ -43,9 +51,12 @@ impl<'e> Meta for &mut Etc {
     }
 }
 
-impl From<PathBuf> for Etc {
-    fn from(p: PathBuf) -> Etc {
-        Etc(p)
+impl<P> From<P> for Etc
+where
+    P: AsRef<Path> + Sized,
+{
+    fn from(p: P) -> Etc {
+        Etc(p.as_ref().to_path_buf())
     }
 }
 

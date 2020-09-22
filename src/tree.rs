@@ -1,5 +1,5 @@
 //! File tree
-use crate::{Error, Etc, FileSystem, Meta, Read};
+use crate::{Error, Etc, FileSystem, Meta, Read, Write};
 use std::{fs, path::PathBuf};
 
 #[cfg(feature = "serde-tree")]
@@ -96,6 +96,10 @@ impl Tree {
             for f in children {
                 f.redir(path.clone())?;
             }
+        }
+
+        if let Some(content) = &self.content {
+            Etc::from(self.path.clone()).write(&content)?;
         }
 
         Ok(())
