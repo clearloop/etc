@@ -38,15 +38,15 @@ pub trait FileSystem: Meta {
     fn find(&self, src: &str) -> Result<PathBuf, Error> {
         for f in fs::read_dir(self.real_path()?)? {
             let path = f?.path();
-            if path.is_dir() {
-                let source: Etc = path.into();
-                let res = FileSystem::find(&source, src);
-                if res.is_ok() {
-                    return res;
-                }
-            } else if let Some(s) = path.file_name() {
+            if let Some(s) = path.file_name() {
                 if src == s {
                     return Ok(path);
+                } else if path.is_dir() {
+                    let source: Etc = path.into();
+                    let res = FileSystem::find(&source, src);
+                    if res.is_ok() {
+                        return res;
+                    }
                 }
             }
         }
@@ -58,12 +58,12 @@ pub trait FileSystem: Meta {
     fn find_all(&self, src: &str, res: &mut Vec<PathBuf>) -> Result<(), Error> {
         for f in fs::read_dir(self.real_path()?)? {
             let path = f?.path();
-            if path.is_dir() {
-                let source: Etc = path.into();
-                FileSystem::find_all(&source, src, res)?;
-            } else if let Some(s) = path.file_name() {
+            if let Some(s) = path.file_name() {
                 if src == s {
                     res.push(path);
+                } else if path.is_dir() {
+                    let source: Etc = path.into();
+                    FileSystem::find_all(&source, src, res)?;
                 }
             }
         }

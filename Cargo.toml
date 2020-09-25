@@ -1,6 +1,6 @@
 [package]
 name = "etc"
-version = "0.1.10"
+version = "0.1.11"
 authors = ["clearloop <udtrokia@gmail.com>"]
 edition = "2018"
 description = "It's time to bundle etc for your awesome project!"
