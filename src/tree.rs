@@ -1,6 +1,9 @@
 //! File tree
 use crate::{Error, Etc, FileSystem, Meta, Read, Write};
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 #[cfg(feature = "serde-tree")]
 use serde::{Deserialize, Serialize};
@@ -85,21 +88,24 @@ impl Tree {
     }
 
     /// Redir tree path, just like `cp -r` in `unix`
-    pub fn redir(&mut self, mut path: PathBuf) -> Result<(), Error> {
-        if !path.exists() {
+    pub fn redir<P>(&mut self, path: P) -> Result<(), Error>
+    where
+        P: AsRef<Path> + Sized,
+    {
+        if !path.as_ref().exists() {
             fs::create_dir_all(&path)?;
         }
 
-        path.push(Etc::from(self.path.clone()).name()?);
-        self.path = path.clone();
+        let mut buf = path.as_ref().to_path_buf();
+        buf.push(Etc::from(self.path.clone()).name()?);
         if let Some(children) = &mut self.children {
             for f in children {
-                f.redir(path.clone())?;
+                f.redir(&buf)?;
             }
         }
 
         if let Some(content) = &self.content {
-            Etc::from(self.path.clone()).write(&content)?;
+            Etc::from(buf).write(&content)?;
         }
 
         Ok(())

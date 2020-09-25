@@ -98,6 +98,7 @@
 //! MIT
 #![allow(clippy::needless_doctest_main)]
 #![warn(missing_docs)]
+mod cmd;
 mod error;
 mod etc;
 mod fs;
@@ -106,6 +107,7 @@ mod meta;
 mod tree;
 
 pub use crate::{
+    cmd::*,
     error::Error,
     etc::Etc,
     fs::FileSystem,
