@@ -27,6 +27,11 @@ impl Etc {
         Ok(Etc(root.as_ref().to_path_buf()))
     }
 
+    /// Check if is `/`
+    pub fn is_root(&self) -> bool {
+        self.0 == PathBuf::from("/")
+    }
+
     /// Convert `Etc` to `Tree`
     pub fn tree(self) -> Result<Tree, Error> {
         Tree::batch(self)
@@ -63,5 +68,11 @@ where
 impl Into<String> for Etc {
     fn into(self) -> String {
         self.name().unwrap_or_else(|_| "".to_string())
+    }
+}
+
+impl Into<PathBuf> for Etc {
+    fn into(self) -> PathBuf {
+        self.0
     }
 }

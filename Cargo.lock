@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 [[package]]
 name = "etc"
-version = "0.1.11"
+version = "0.1.15"
 dependencies = [
  "serde",
 ]
