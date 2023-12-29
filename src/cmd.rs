@@ -40,5 +40,5 @@ pub fn find_up(target: &str) -> Result<PathBuf, Error> {
         }
     }
 
-    return Err(Error::Custom(format!("Could not find file {}", target)));
+    Err(Error::Custom(format!("Could not find file {}", target)))
 }

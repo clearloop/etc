@@ -10,7 +10,7 @@ use std::{
 /// + Dir  - no contents, have children
 /// + File - have contents, no children
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Default, Eq, PartialEq)]
+#[derive(Debug, Clone, Default, Eq, PartialEq)]
 pub struct Tree {
     /// File path
     pub path: PathBuf,
@@ -102,7 +102,7 @@ impl Tree {
         }
 
         if let Some(content) = &self.content {
-            Etc::from(buf).write(&content)?;
+            Etc::from(buf).write(content)?;
         }
 
         Ok(())
@@ -114,44 +114,33 @@ impl Tree {
     }
 }
 
-macro_rules! into {
-    ([$($t:ty),+]) => {
-        $(
-            // Into `Vec<PathBuf>`
-            impl Into<Vec<PathBuf>> for $t {
-                fn into(self) -> Vec<PathBuf> {
-                    let mut vp: Vec<PathBuf> = vec![];
-                    vp.push(self.path.clone());
-                    if let Some(children) = &self.children {
-                        for f in children {
-                            vp.append(&mut f.into());
-                        }
-                    }
+impl From<Tree> for Vec<Tree> {
+    fn from(mut tree: Tree) -> Vec<Tree> {
+        let mut vp: Vec<Tree> = vec![];
+        let children = tree.children.take();
+        vp.push(tree);
 
-                    vp
-                }
+        if let Some(children) = children {
+            for tree in children {
+                vp.append(&mut tree.clone().into());
             }
+        }
 
-            // Into `Vec<tree>`
-            impl Into<Vec<Tree>> for $t {
-                fn into(self) -> Vec<Tree> {
-                    let mut vp: Vec<Tree> = vec![];
-                    let mut t = Tree::default();
-                    t.path = self.path.clone();
-                    t.content = self.content.clone();
-
-                    vp.push(t);
-                    if let Some(children) = &self.children {
-                        for f in children {
-                            vp.append(&mut f.into());
-                        }
-                    }
-
-                    vp
-                }
-            }
-        )+
+        vp
     }
 }
 
-into!([&Tree, &mut Tree]);
+impl From<Tree> for Vec<PathBuf> {
+    fn from(tree: Tree) -> Self {
+        let mut vp: Vec<PathBuf> = vec![];
+        vp.push(tree.path.clone());
+
+        if let Some(children) = tree.children {
+            for f in children {
+                vp.append(&mut f.into());
+            }
+        }
+
+        vp
+    }
+}

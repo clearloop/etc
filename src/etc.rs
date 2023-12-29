@@ -1,12 +1,14 @@
 //! etc source
 use crate::{Error, Meta, Tree};
 use std::{
-    convert::{From, Into},
+    convert::From,
     fs,
+    os::unix::prelude::PermissionsExt,
     path::{Path, PathBuf},
 };
 
 /// contains dir and file
+#[derive(Clone, Debug)]
 pub struct Etc(PathBuf);
 
 impl Etc {
@@ -21,6 +23,9 @@ impl Etc {
 
         let mut perms = fs::metadata(&root)?.permissions();
         if perms.readonly() {
+            #[cfg(target_family = "unix")]
+            perms.set_mode(0o755);
+            #[cfg(target_family = "windows")]
             perms.set_readonly(false);
         }
 
@@ -44,18 +49,6 @@ impl Meta for Etc {
     }
 }
 
-impl<'e> Meta for &Etc {
-    fn real_path(&self) -> Result<PathBuf, Error> {
-        Ok(self.0.to_owned())
-    }
-}
-
-impl<'e> Meta for &mut Etc {
-    fn real_path(&self) -> Result<PathBuf, Error> {
-        Ok(self.0.to_owned())
-    }
-}
-
 impl<P> From<P> for Etc
 where
     P: AsRef<Path> + Sized,
@@ -65,14 +58,14 @@ where
     }
 }
 
-impl Into<String> for Etc {
-    fn into(self) -> String {
-        self.name().unwrap_or_else(|_| "".to_string())
+impl From<Etc> for String {
+    fn from(val: Etc) -> Self {
+        val.name().unwrap_or_else(|_| "".to_string())
     }
 }
 
-impl Into<PathBuf> for Etc {
-    fn into(self) -> PathBuf {
-        self.0
+impl From<Etc> for PathBuf {
+    fn from(val: Etc) -> Self {
+        val.0
     }
 }
