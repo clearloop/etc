@@ -5,14 +5,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[cfg(feature = "serde-tree")]
-use serde::{Deserialize, Serialize};
-
 /// Here are two file types in `Tree`
 ///
 /// + Dir  - no contents, have children
 /// + File - have contents, no children
-#[cfg_attr(feature = "serde-tree", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Default, Eq, PartialEq)]
 pub struct Tree {
     /// File path

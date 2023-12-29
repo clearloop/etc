@@ -1,22 +1,18 @@
 [package]
 name = "etc"
-version = "0.1.15"
-authors = ["clearloop <udtrokia@gmail.com>"]
-edition = "2018"
+version = "0.1.17"
+authors = ["clearloop"]
+edition = "2021"
 description = "It's time to bundle etc for your awesome project!"
 repository = "https://github.com/clearloop/etc"
 license = "MIT"
 documentation = "https://docs.rs/etc"
 homepage = "https://github.com/clearloop/etc"
-include = ["src/**/*", "Cargo.toml", "./README.md"]
 keywords = ["os"]
 readme = './README.md'
 
-[dependencies.serde]
-version = "1.0.114"
-features = ["derive"]
-optional = true
+[dependencies]
+serde = { version = "1.0.193", features = [ "derive" ], optional = true }
 
 [features]
-serde-tree = ["serde", "serde/derive"]
 default = []

@@ -1,6 +1,5 @@
 # etc
 
-[![etc](https://github.com/clearloop/etc/workflows/etc/badge.svg)](https://github.com/clearloop/etc)
 [![crate](https://img.shields.io/crates/v/etc.svg)](https://crates.io/crates/etc)
 [![doc](https://img.shields.io/badge/current-docs-brightgreen.svg)](https://docs.rs/etc/)
 [![downloads](https://img.shields.io/crates/d/etc.svg)](https://crates.io/crates/etc)
@@ -90,13 +89,12 @@ fn main() {
 
 ## Projects using etc
 
-+ [elvis][elvis] - Webassembly UI framework
-+ [sup][sup] - Substrate package manager
+- [elvis][elvis] - Webassembly UI framework
+- [sup][sup] - Substrate package manager
 
 ## LICENSE
 
 MIT
-
 
 [elvis]: https://github.com/elvisjs/elvis
 [sup]: https://github.com/clearloop/sup
