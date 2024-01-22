@@ -3,9 +3,11 @@ use crate::{Error, Meta, Tree};
 use std::{
     convert::From,
     fs,
-    os::unix::prelude::PermissionsExt,
     path::{Path, PathBuf},
 };
+
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::PermissionsExt;
 
 /// contains dir and file
 #[derive(Clone, Debug)]
@@ -26,6 +28,7 @@ impl Etc {
             #[cfg(target_family = "unix")]
             perms.set_mode(0o755);
             #[cfg(target_family = "windows")]
+            #[allow(clippy::permissions_set_readonly_false)]
             perms.set_readonly(false);
         }
 
