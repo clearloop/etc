@@ -62,7 +62,7 @@
 //!     assert!(bmd.write(b"# world").is_ok());
 //!
 //!     // batch and load
-//!     let mut tree = Tree::batch(&etc).unwrap();
+//!     let mut tree = Tree::batch(etc.clone()).unwrap();
 //!     assert!(tree.load().is_ok());
 //!     assert_eq!(
 //!         tree,

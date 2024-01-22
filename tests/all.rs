@@ -57,7 +57,7 @@ fn test_batch() {
     etc.mkdir("a/c/b").unwrap();
 
     assert_eq!(
-        Tree::batch(&etc).unwrap(),
+        Tree::batch(etc.clone()).unwrap(),
         Tree {
             path: PathBuf::from(&dir),
             content: None,
@@ -107,7 +107,7 @@ fn test_load() {
     assert!(bmd.write(b"# world").is_ok());
 
     // batch and load
-    let mut tree = Tree::batch(&etc).unwrap();
+    let mut tree = Tree::batch(etc.clone()).unwrap();
     assert!(tree.load().is_ok());
     assert_eq!(
         tree,
