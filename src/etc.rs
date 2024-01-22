@@ -3,9 +3,11 @@ use crate::{Error, Meta, Tree};
 use std::{
     convert::From,
     fs,
-    os::unix::prelude::PermissionsExt,
     path::{Path, PathBuf},
 };
+
+#[cfg(target_family = "unix")]
+use std::os::unix::fs::PermissionsExt;
 
 /// contains dir and file
 #[derive(Clone, Debug)]
