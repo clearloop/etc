@@ -28,6 +28,7 @@ impl Etc {
             #[cfg(target_family = "unix")]
             perms.set_mode(0o755);
             #[cfg(target_family = "windows")]
+            #[allow(clippy::permissions_set_readonly_false)]
             perms.set_readonly(false);
         }
 
