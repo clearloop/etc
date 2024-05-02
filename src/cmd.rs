@@ -34,10 +34,10 @@ where
 pub fn find_up(target: &str) -> Result<PathBuf, Error> {
     let mut cur = Etc::from(env::current_dir()?);
     while !cur.is_root() {
-        cur = cur.base()?.into();
         if cur.ls()?.contains(&target.to_string()) {
             return Ok(cur.open(target)?.into());
         }
+        cur = cur.base()?.into();
     }
 
     Err(Error::Custom(format!("Could not find file {}", target)))

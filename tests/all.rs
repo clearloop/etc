@@ -137,3 +137,8 @@ fn test_load() {
     assert!(etc.drain().is_ok());
     assert!(!dir.exists());
 }
+
+#[test]
+fn test_find_up() {
+    assert!(etc::find_up("Cargo.toml").is_ok());
+}
